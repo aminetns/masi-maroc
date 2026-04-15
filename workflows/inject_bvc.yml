@@ -1,0 +1,29 @@
+name: Inject BVC Prices Daily
+
+on:
+  schedule:
+    - cron: '30 15 * * 1-5'  # 15h30 UTC = 16h30 Maroc (clôture BVC)
+  workflow_dispatch:           # Permet le lancement manuel pour tester
+
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install supabase requests pandas
+
+      - name: Run BVC injection
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python inject_bvc.py
