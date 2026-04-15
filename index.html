@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MASI Terminal · BVC 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#f4f5f7;--w:#ffffff;--off:#f8f9fb;
+  --b1:#e8eaed;--b2:#d1d5db;
+  --ink:#111827;--ink2:#374151;--ink3:#6b7280;--ink4:#9ca3af;
+  --blue:#1d4ed8;--blue2:#2563eb;--bluelt:#eff6ff;--bluebrd:#bfdbfe;
+  --green:#15803d;--greenbg:#dcfce7;--greenbrd:#86efac;
+  --red:#b91c1c;--redbg:#fee2e2;--redbrd:#fca5a5;
+  --gold:#92400e;--goldbg:#fef3c7;
+  --r:10px;--r2:14px;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow2:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  --shadow3:0 10px 25px rgba(0,0,0,.1),0 4px 10px rgba(0,0,0,.06);
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;-webkit-font-smoothing:antialiased}
+
+/* ── TOP BAR ── */
+.top{background:var(--w);border-bottom:1px solid var(--b1);height:54px;display:flex;align-items:center;padding:0 24px;gap:0;position:sticky;top:0;z-index:300;box-shadow:var(--shadow)}
+.logo{display:flex;align-items:center;gap:10px;margin-right:20px;flex-shrink:0}
+.logo-mark{width:28px;height:28px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2}
+.logo-txt{font-family:var(--serif);font-size:14px;font-weight:600;color:var(--ink)}
+.logo-sub{font-family:var(--mono);font-size:8px;color:var(--ink4);letter-spacing:.14em;display:block;line-height:1}
+.nav{display:flex;flex:1;overflow-x:auto;gap:0}
+.nav::-webkit-scrollbar{display:none}
+.ni{font-size:11.5px;color:var(--ink3);cursor:pointer;padding:0 14px;height:54px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.ni:hover{color:var(--ink)}
+.ni.on{color:var(--blue2);border-bottom-color:var(--blue2);font-weight:500}
+.topright{display:flex;align-items:center;gap:12px;flex-shrink:0;margin-left:12px}
+.masi-val{font-family:var(--serif);font-size:16px;font-weight:600}
+.masi-chg{font-family:var(--mono);font-size:10px}
+.db-status{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;color:var(--ink4)}
+.db-dot{width:7px;height:7px;border-radius:50%;background:var(--ink4);transition:background .4s}
+.db-dot.ok{background:var(--green)}
+.db-dot.err{background:var(--red)}
+.db-dot.loading{background:#f59e0b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.top-btn{background:var(--blue2);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-family:var(--sans);font-size:11px;font-weight:500;cursor:pointer;transition:background .15s}
+.top-btn:hover{background:var(--blue)}
+.top-btn.green{background:var(--green)}
+.top-btn.green:hover{background:#166534}
+.vsep{width:1px;height:20px;background:var(--b2)}
+
+/* ── PAGES ── */
+.pg{display:none;padding:20px 24px;min-height:calc(100vh - 54px)}
+.pg.on{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--w);border:1px solid var(--b1);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--shadow)}
+.ct{font-size:9px;font-weight:500;color:var(--ink3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.cb{font-weight:400;color:var(--ink4)}
+
+/* ── KPI GRID ── */
+.kgrid{display:grid;gap:10px;margin-bottom:16px}
+.kgrid-6{grid-template-columns:repeat(6,1fr)}
+.kgrid-5{grid-template-columns:repeat(5,1fr)}
+.kgrid-4{grid-template-columns:repeat(4,1fr)}
+.kgrid-3{grid-template-columns:repeat(3,1fr)}
+.kpi{background:var(--w);border:1px solid var(--b1);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.kl{font-size:8px;color:var(--ink4);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.kv{font-family:var(--serif);font-size:22px;color:var(--ink);line-height:1}
+.kv.sm{font-size:16px}
+.kv.acc{color:var(--blue2)}
+.ks{font-size:10px;color:var(--ink3);margin-top:4px;font-family:var(--mono)}
+.ks.pos{color:var(--green)}
+.ks.neg{color:var(--red)}
+
+/* ── TABLES ── */
+.tbox{background:var(--w);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden;box-shadow:var(--shadow)}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--b1);gap:10px;flex-wrap:wrap}
+.tttl{font-size:10px;font-weight:500;color:var(--ink2);letter-spacing:.05em}
+.tsc{overflow-x:auto;max-height:480px;overflow-y:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:8px 12px;text-align:right;font-size:8.5px;color:var(--ink4);font-weight:500;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--b1);background:var(--off);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;z-index:1}
+th:first-child{text-align:left}
+th:hover{color:var(--ink2)}
+td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--b1);font-size:12px;color:var(--ink2);white-space:nowrap}
+td:first-child{text-align:left}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f9fafb}
+
+/* ── FILTERS ── */
+.fbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.csel{border:1px solid var(--b2);border-radius:7px;padding:5px 10px;font-family:var(--sans);font-size:11px;color:var(--ink2);background:var(--w);cursor:pointer;outline:none}
+.csel:hover{border-color:var(--blue2)}
+.tsrc{border:1px solid var(--b2);border-radius:7px;padding:5px 10px;font-family:var(--sans);font-size:11px;color:var(--ink2);background:var(--w);outline:none;width:160px}
+.tsrc:focus{border-color:var(--blue2)}
+
+/* ── TAGS ── */
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:500}
+.tp{background:var(--greenbg);color:var(--green);border:1px solid var(--greenbrd)}
+.tn{background:var(--redbg);color:var(--red);border:1px solid var(--redbrd)}
+.te{background:var(--off);color:var(--ink4);border:1px solid var(--b2)}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+
+/* ── FILTER STRIP ── */
+.fstrip{display:flex;gap:5px;overflow-x:auto;padding:8px 12px;border-bottom:1px solid var(--b1)}
+.fstrip::-webkit-scrollbar{display:none}
+.fb{font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid var(--b2);color:var(--ink3);cursor:pointer;background:transparent;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.fb:hover{border-color:var(--blue2);color:var(--blue2)}
+.fb.on{background:var(--blue2);color:#fff;border-color:var(--blue2)}
+
+/* ── PERIOD BTNS ── */
+.pbtn{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--b2);color:var(--ink3);cursor:pointer;background:transparent;transition:all .15s}
+.pbtn:hover{border-color:var(--blue2);color:var(--blue2)}
+.pbtn.on{background:var(--blue2);color:#fff;border-color:var(--blue2)}
+
+/* ── MODALS ── */
+.mdbg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.mdbg.show{display:flex}
+.mdbox{background:var(--w);border-radius:var(--r2);padding:24px 26px;width:500px;max-width:95vw;box-shadow:var(--shadow3)}
+.mdttl{font-family:var(--serif);font-size:17px;color:var(--ink);margin-bottom:4px}
+.mdsub{font-size:11px;color:var(--ink3);margin-bottom:18px}
+.md-close{position:absolute;top:16px;right:16px;background:transparent;border:none;font-size:18px;cursor:pointer;color:var(--ink4)}
+.inp{width:100%;border:1px solid var(--b2);border-radius:7px;padding:8px 11px;font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--w);outline:none;transition:border .15s}
+.inp:focus{border-color:var(--blue2)}
+.lbl{font-size:9px;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:4px}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--b1);margin-top:14px}
+.btng{background:var(--green);color:#fff;border:none;padding:7px 16px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer}
+.btng:hover{background:#166534}
+.btnb{background:var(--blue2);color:#fff;border:none;padding:7px 16px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer}
+.btnb:hover{background:var(--blue)}
+.btnc{background:transparent;border:1px solid var(--b2);color:var(--ink3);padding:7px 14px;border-radius:7px;font-size:12px;cursor:pointer}
+
+/* ── VALEUR MODAL ── */
+.vmbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;backdrop-filter:blur(2px)}
+.vmbg.show{display:flex}
+.vmbox{background:var(--w);border-radius:var(--r2);width:100%;max-width:1080px;margin:auto;overflow:hidden;box-shadow:var(--shadow3)}
+.vmhead{background:var(--w);padding:18px 22px 0;border-bottom:1px solid var(--b1)}
+.vm-name{font-family:var(--serif);font-size:19px;font-weight:600}
+.vm-tick{font-family:var(--mono);font-size:11px;color:var(--blue2);background:var(--bluelt);border:1px solid var(--bluebrd);padding:3px 9px;border-radius:20px}
+.vm-sect{font-size:11px;color:var(--ink4);background:var(--off);padding:3px 9px;border-radius:20px;border:1px solid var(--b2)}
+.vm-cours{font-family:var(--mono);font-size:22px;font-weight:500}
+.vm-var{font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 8px;border-radius:20px}
+.vm-var.pos{background:var(--greenbg);color:var(--green)}
+.vm-var.neg{background:var(--redbg);color:var(--red)}
+.vm-kpis{display:flex;border-top:1px solid var(--b1);margin-top:14px;overflow-x:auto}
+.vm-kpi{padding:10px 16px;border-right:1px solid var(--b1);flex-shrink:0;min-width:90px}
+.vm-kpi:last-child{border-right:none}
+.vm-kl{font-size:8px;color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.vm-kv{font-family:var(--serif);font-size:16px;color:var(--ink)}
+.vmbody{background:var(--bg);padding:14px 18px 20px}
+.vm-close{background:var(--off);border:1px solid var(--b2);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;color:var(--ink3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vm-close:hover{background:var(--b1)}
+
+/* ── SECTEUR COLORS ── */
+.sc-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:500}
+
+/* ── GRID LAYOUTS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* ── LOADING ── */
+.ldbar{height:2px;background:var(--bluelt);position:fixed;top:54px;left:0;right:0;z-index:400;display:none}
+.ldbar.show{display:block}
+.ldbar::after{content:'';display:block;height:100%;width:40%;background:var(--blue2);animation:ldanim 1.2s ease-in-out infinite}
+@keyframes ldanim{0%{margin-left:-40%}100%{margin-left:100%}}
+
+/* ── NOTIFY ── */
+.notif-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:999}
+.notif{padding:10px 16px;border-radius:9px;font-size:12px;font-weight:500;color:#fff;box-shadow:var(--shadow3);animation:fadein .2s ease;pointer-events:none}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── COURS CHIPS ── */
+.cours-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;border:1px solid;cursor:pointer}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--ink4)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-title{font-family:var(--serif);font-size:17px;color:var(--ink3);margin-bottom:8px}
+.empty-sub{font-size:12px}
+
+/* ── PORTEFEUILLE ── */
+.pnl-pos{color:var(--green);font-weight:500}
+.pnl-neg{color:var(--red);font-weight:500}
+</style>
+</head>
+<body>
+
+<!-- LOADING BAR -->
+<div class="ldbar" id="ldbar"></div>
+
+<!-- TOP BAR -->
+<div class="top">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    </div>
+    <div>
+      <div class="logo-txt">MASI Terminal</div>
+      <span class="logo-sub">VISION 360 · BVC 2025</span>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="ni on" onclick="goTab('realisations',this)">Réalisations</div>
+    <div class="ni" onclick="goTab('cours',this)">Évolution cours</div>
+    <div class="ni" onclick="goTab('fondamentaux',this)">Fondamentaux</div>
+    <div class="ni" onclick="goTab('indicateurs',this)">Indicateurs</div>
+    <div class="ni" onclick="goTab('secteurs',this)">Secteurs</div>
+    <div class="ni" onclick="goTab('dividendes',this)">Dividendes</div>
+    <div class="ni" onclick="goTab('portefeuille',this)">Portefeuille</div>
+  </nav>
+  <div class="topright">
+    <div>
+      <div class="masi-val" id="masiVal">—</div>
+      <div class="masi-chg" id="masiChg" style="color:var(--ink4)">—</div>
+    </div>
+    <div class="vsep"></div>
+    <div class="db-status">
+      <div class="db-dot loading" id="dbDot"></div>
+      <span id="dbTxt">Connexion...</span>
+    </div>
+    <button class="top-btn" onclick="loadAllData()">↻ Actualiser</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE : RÉALISATIONS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg on" id="pg-realisations">
+  <!-- Filtres -->
+  <div class="fbar">
+    <select class="csel" id="rlzMetric" onchange="renderRlz()">
+      <option value="all">CA + REX + RNPG</option>
+      <option value="ca">Chiffre d'Affaires</option>
+      <option value="rex">Résultat d'Exploitation</option>
+      <option value="rnpg">Résultat Net (RNPG)</option>
+    </select>
+    <select class="csel" id="rlzSec" onchange="renderRlz()"><option value="">Tous secteurs</option></select>
+    <select class="csel" id="rlzTick" onchange="renderRlz()"><option value="">Toutes valeurs</option></select>
+    <select class="csel" id="rlzSort" onchange="renderRlz()">
+      <option value="ca25">Trier: CA 2025</option>
+      <option value="rex25">Trier: REX 2025</option>
+      <option value="rnpg25">Trier: RNPG 2025</option>
+      <option value="ca_var">Trier: Δ CA</option>
+      <option value="rex_var">Trier: Δ REX</option>
+    </select>
+    <input class="tsrc" id="rlzSrch" placeholder="Rechercher..." oninput="renderRlz()">
+    <span style="font-family:var(--mono);font-size:10px;color:var(--ink4);margin-left:auto" id="rlzCount"></span>
+  </div>
+
+  <!-- KPIs masse -->
+  <div class="kgrid kgrid-6" id="rlzKpis" style="margin-bottom:14px">
+    <div class="kpi"><div class="kl">CA 2025</div><div class="kv acc" id="rkCA">—</div><div class="ks" id="rkCAv"></div></div>
+    <div class="kpi"><div class="kl">CA 2024</div><div class="kv" id="rkCA24">—</div></div>
+    <div class="kpi"><div class="kl">REX 2025</div><div class="kv acc" id="rkREX">—</div><div class="ks" id="rkREXv"></div></div>
+    <div class="kpi"><div class="kl">RNPG 2025</div><div class="kv" id="rkRNPG">—</div></div>
+    <div class="kpi"><div class="kl">Marge REX</div><div class="kv" id="rkMgREX">—</div></div>
+    <div class="kpi"><div class="kl">Marge Nette</div><div class="kv" id="rkMgNet">—</div></div>
+  </div>
+
+  <!-- Waterfall + Bar -->
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="ct" id="rlzWfTitle">Waterfall CA 2024→2025 <span class="cb">MMAD par secteur</span></div>
+      <div style="height:260px"><canvas id="c-rlzWf"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct" id="rlzBarTitle">Variation CA 2025 <span class="cb">% par valeur — top 20</span></div>
+      <div style="height:260px"><canvas id="c-rlzBar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="tbox">
+    <div class="tbar">
+      <span class="tttl">Réalisations 2025 — détail par valeur</span>
+    </div>
+    <div class="fstrip" id="rlzFstrip"></div>
+    <div class="tsc">
+      <table>
+        <thead><tr id="rlzThead"></tr></thead>
+        <tbody id="rlzBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE : ÉVOLUTION DES COURS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg-cours">
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <select class="csel" id="coursAddSel" style="min-width:200px"><option value="">Ajouter une valeur...</option></select>
+      <button class="btnb" onclick="addCoursTicker()" style="padding:5px 14px;font-size:11px">+ Ajouter</button>
+      <button class="btnc" onclick="clearCours()" style="font-size:11px;padding:5px 12px">Vider</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink3);cursor:pointer;margin-left:auto">
+        <input type="checkbox" id="coursB100" onchange="drawCours()">
+        Base 100
+      </label>
+      <div style="display:flex;gap:5px">
+        <div class="pbtn on" onclick="setCoursP(365,this)">1A</div>
+        <div class="pbtn" onclick="setCoursP(180,this)">6M</div>
+        <div class="pbtn" onclick="setCoursP(90,this)">3M</div>
+        <div class="pbtn" onclick="setCoursP(1095,this)">3A</div>
+        <div class="pbtn" onclick="setCoursP(3650,this)">MAX</div>
+      </div>
+    </div>
+    <div id="coursChips" style="display:flex;gap:6px;flex-wrap:wrap;min-height:24px"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="ct" id="coursTitle">Évolution des cours <span class="cb">sélectionner des valeurs ci-dessus</span></div>
+    <div style="height:400px;position:relative"><canvas id="c-cours"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Performance sur la période <span class="cb">%</span></div>
+    <div style="height:150px"><canvas id="c-coursPerf"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE : FONDAMENTAUX -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg-fondamentaux">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <select class="csel" id="fondSel" style="min-width:220px;font-size:12px" onchange="loadFond(this.value)">
+      <option value="">Sélectionner une valeur...</option>
+    </select>
+    <div style="display:flex;gap:5px;margin-left:auto">
+      <div class="pbtn on" onclick="setFondP('all',this)">2015→2024</div>
+      <div class="pbtn" onclick="setFondP('5',this)">5 ans</div>
+      <div class="pbtn" onclick="setFondP('3',this)">3 ans</div>
+    </div>
+  </div>
+
+  <div id="fondContent" style="display:none">
+    <!-- Header valeur -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <span class="vm-name" id="fondName">—</span>
+        <span class="vm-tick" id="fondTick">—</span>
+        <span class="vm-sect" id="fondSect">—</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:18px;font-weight:500" id="fondCours">—</span>
+        <span class="vm-var" id="fondVar">—</span>
+      </div>
+      <div style="display:flex;border-top:1px solid var(--b1);overflow-x:auto;padding-top:12px;gap:0">
+        <div class="vm-kpi"><div class="vm-kl">PE 2024</div><div class="vm-kv" id="fondPE">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">DY 2024</div><div class="vm-kv" id="fondDY">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">ROE 2024</div><div class="vm-kv" id="fondROE">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">Gearing</div><div class="vm-kv" id="fondGear">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">Marge REX</div><div class="vm-kv" id="fondMgR">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">Marge Nette</div><div class="vm-kv" id="fondMgN">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">Fonds Propres</div><div class="vm-kv" id="fondFP">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">Dette Fin.</div><div class="vm-kv" id="fondDT">—</div></div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card"><div class="ct">CA · REX · RNPG <span class="cb">MMAD</span></div><div style="height:220px"><canvas id="c-fCA"></canvas></div></div>
+      <div class="card"><div class="ct">Marges &amp; ROE <span class="cb">%</span></div><div style="height:220px"><canvas id="c-fMg"></canvas></div></div>
+    </div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card"><div class="ct">Structure financière <span class="cb">MMAD</span></div><div style="height:180px"><canvas id="c-fBilan"></canvas></div></div>
+      <div class="card"><div class="ct">Cours historique <span class="cb">MAD clôture</span></div><div style="height:180px"><canvas id="c-fCours"></canvas></div></div>
+    </div>
+
+    <!-- Tableau historique complet -->
+    <div class="tbox">
+      <div class="tbar"><span class="tttl" id="fondTableTtl">Historique complet</span></div>
+      <div class="tsc">
+        <table>
+          <thead><tr>
+            <th style="text-align:left">Année</th>
+            <th>CA</th><th>REX</th><th>RNPG</th>
+            <th>Mg REX</th><th>Mg Nette</th><th>ROE</th><th>Gearing</th>
+            <th>Fonds P.</th><th>Dettes</th><th>BFR</th><th>CAF</th><th>Capex</th>
+            <th>PE</th><th>DY</th><th>Cours Clôt.</th>
+          </tr></thead>
+          <tbody id="fondBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty" id="fondEmpty">
+    <div class="empty-icon">📊</div>
+    <div class="empty-title">Sélectionner une valeur</div>
+    <div class="empty-sub">Choisissez une entreprise pour afficher ses fondamentaux 2015→2024</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE : INDICATEURS BOURSIERS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg-indicateurs">
+  <div class="fbar">
+    <select class="csel" id="indSec" onchange="renderInd()"><option value="">Tous secteurs</option></select>
+    <select class="csel" id="indSort" onchange="renderInd()">
+      <option value="mcap">Trier: Mkt Cap</option>
+      <option value="pe">Trier: P/E</option>
+      <option value="dy">Trier: D/Y</option>
+      <option value="pb">Trier: P/B</option>
+      <option value="ytd">Trier: YTD</option>
+      <option value="poids_masi">Trier: Poids MASI</option>
+    </select>
+    <input class="tsrc" id="indSrch" placeholder="Rechercher..." oninput="renderInd()">
+  </div>
+
+  <!-- KPIs marché -->
+  <div class="kgrid kgrid-5" style="margin-bottom:14px">
+    <div class="kpi"><div class="kl">Cap. Marché MASI</div><div class="kv acc" id="indMcap">—</div><div class="ks">MMAD</div></div>
+    <div class="kpi"><div class="kl">P/E Médian MASI</div><div class="kv" id="indPE">—</div><div class="ks">2025 résultats</div></div>
+    <div class="kpi"><div class="kl">D/Y Moyen MASI</div><div class="kv" id="indDY">—</div><div class="ks">Cours live</div></div>
+    <div class="kpi"><div class="kl">Valeurs hausse</div><div class="kv pos" style="color:var(--green)" id="indH">—</div><div class="ks">depuis déb. 2025</div></div>
+    <div class="kpi"><div class="kl">Valeurs baisse</div><div class="kv" style="color:var(--red)" id="indB">—</div><div class="ks">depuis déb. 2025</div></div>
+  </div>
+
+  <!-- Table indicateurs -->
+  <div class="tbox">
+    <div class="tbar"><span class="tttl">Indicateurs boursiers — PE · PB · DY · Market Cap · YTD</span></div>
+    <div class="tsc">
+      <table>
+        <thead><tr>
+          <th style="text-align:left" onclick="sortInd('name')">Valeur</th>
+          <th onclick="sortInd('cours')">Cours</th>
+          <th onclick="sortInd('ytd')">YTD</th>
+          <th onclick="sortInd('mcap')">Mkt Cap</th>
+          <th onclick="sortInd('pe')">P/E 2025R</th>
+          <th onclick="sortInd('pb')">P/B</th>
+          <th onclick="sortInd('dy')">D/Y</th>
+          <th onclick="sortInd('dpa')">DPA</th>
+          <th onclick="sortInd('poids_masi')">Poids MASI</th>
+          <th>Secteur</th>
+        </tr></thead>
+        <tbody id="indBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE : SECTEURS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg-secteurs">
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="ct">CA 2025 par secteur <span class="cb">MMAD — clic pour détail</span></div>
+      <div style="height:300px"><canvas id="c-secCA"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">REX 2025 par secteur <span class="cb">MMAD</span></div>
+      <div style="height:300px"><canvas id="c-secREX"></canvas></div>
+    </div>
+  </div>
+  <div id="secDrill" style="display:none"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE : DIVIDENDES -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg-dividendes">
+  <div class="kgrid kgrid-4" style="margin-bottom:14px">
+    <div class="kpi"><div class="kl">D/Y Moyen MASI</div><div class="kv acc" id="divDY">—</div></div>
+    <div class="kpi"><div class="kl">Valeurs DY ≥ 5%</div><div class="kv" id="divH">—</div><div class="ks">haut rendement</div></div>
+    <div class="kpi"><div class="kl">Sans dividende</div><div class="kv" id="divZ">—</div><div class="ks">DPA = 0 ou NC</div></div>
+    <div class="kpi"><div class="kl">Top rendement</div><div class="kv sm acc" id="divTop">—</div></div>
+  </div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="ct">D/Y par valeur <span class="cb">% — cours live</span></div>
+      <div style="height:280px"><canvas id="c-divDY"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">DPA 2025 <span class="cb">MAD par action</span></div>
+      <div style="height:280px"><canvas id="c-divDPA"></canvas></div>
+    </div>
+  </div>
+  <div class="tbox">
+    <div class="tbar">
+      <span class="tttl">Dividendes 2025 — toutes valeurs</span>
+      <input class="tsrc" id="divSrch" placeholder="Rechercher..." oninput="renderDivTable()">
+    </div>
+    <div class="tsc">
+      <table>
+        <thead><tr>
+          <th style="text-align:left">Valeur</th>
+          <th>Cours</th><th>DPA 2025</th><th>D/Y %</th><th>P/E</th><th>Secteur</th>
+        </tr></thead>
+        <tbody id="divBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE : PORTEFEUILLE -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg-portefeuille">
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+    <button class="btng" onclick="openAddPtf()">+ Ajouter position</button>
+    <button class="btnc" onclick="clearPtf()">Vider portefeuille</button>
+    <span style="font-size:10px;color:var(--ink4);margin-left:auto">Sauvegardé localement</span>
+  </div>
+  <div class="kgrid kgrid-5" style="margin-bottom:14px">
+    <div class="kpi"><div class="kl">Valeur marché</div><div class="kv acc" id="ptfMV">—</div></div>
+    <div class="kpi"><div class="kl">Coût de revient</div><div class="kv" id="ptfCR">—</div></div>
+    <div class="kpi"><div class="kl">P&amp;L latent</div><div class="kv" id="ptfPnl">—</div><div class="ks" id="ptfPnlP"></div></div>
+    <div class="kpi"><div class="kl">P&amp;L du jour</div><div class="kv" id="ptfDay">—</div></div>
+    <div class="kpi"><div class="kl">Positions</div><div class="kv acc" id="ptfNb">0</div></div>
+  </div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="tbox">
+      <div class="tbar"><span class="tttl">Positions</span></div>
+      <div class="tsc" style="max-height:360px">
+        <table>
+          <thead><tr>
+            <th style="text-align:left">Valeur</th>
+            <th>Qté</th><th>Px Achat</th><th>Cours</th>
+            <th>Mkt Val.</th><th>P&amp;L</th><th>P&amp;L %</th><th>Jour</th><th></th>
+          </tr></thead>
+          <tbody id="ptfBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Allocation <span class="cb">% poids</span></div>
+      <div style="height:300px"><canvas id="c-ptfAlloc"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Performance par ligne <span class="cb">%</span></div>
+    <div style="height:160px"><canvas id="c-ptfPnl"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : AJOUTER POSITION -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="mdbg" id="mdPtf">
+  <div class="mdbox">
+    <div class="mdttl">Ajouter une position</div>
+    <div class="mdsub">Prix moyen pondéré si la valeur est déjà en portefeuille</div>
+    <div style="margin-bottom:10px">
+      <div class="lbl">Valeur</div>
+      <select class="inp" id="ptfSel"><option value="">Choisir...</option></select>
+    </div>
+    <div class="g2" style="margin-bottom:10px">
+      <div><div class="lbl">Quantité</div><input class="inp" id="ptfQty" type="number" min="1" placeholder="100"></div>
+      <div><div class="lbl">Prix d'achat (MAD)</div><input class="inp" id="ptfPx" type="number" step="0.01" placeholder="700"></div>
+    </div>
+    <div style="margin-bottom:4px"><div class="lbl">Date d'achat</div><input class="inp" id="ptfDate" type="date"></div>
+    <div class="btn-row">
+      <button class="btnc" onclick="closeMd('mdPtf')">Annuler</button>
+      <button class="btng" onclick="addPtf()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : FICHE VALEUR -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="vmbg" id="vmModal">
+  <div class="vmbox">
+    <div class="vmhead">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="vm-name" id="vmName">—</span>
+        <span class="vm-tick" id="vmTick">—</span>
+        <span class="vm-sect" id="vmSect">—</span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+          <div>
+            <div class="vm-cours" id="vmCours">—</div>
+          </div>
+          <span class="vm-var" id="vmVar">—</span>
+          <div style="display:flex;gap:4px">
+            <div class="pbtn on" onclick="setVmP(365,this)">1A</div>
+            <div class="pbtn" onclick="setVmP(180,this)">6M</div>
+            <div class="pbtn" onclick="setVmP(90,this)">3M</div>
+            <div class="pbtn" onclick="setVmP(1095,this)">3A</div>
+            <div class="pbtn" onclick="setVmP(3650,this)">MAX</div>
+          </div>
+          <button class="vm-close" onclick="closeVm()">✕</button>
+        </div>
+      </div>
+      <div class="vm-kpis">
+        <div class="vm-kpi"><div class="vm-kl">P/E 2025R</div><div class="vm-kv" id="vmPE">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">P/B</div><div class="vm-kv" id="vmPB">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">D/Y</div><div class="vm-kv" id="vmDY">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">Mkt Cap</div><div class="vm-kv" id="vmMcap">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">CA 2025</div><div class="vm-kv" id="vmCA">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">REX 2025</div><div class="vm-kv" id="vmREX">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">RNPG 2025</div><div class="vm-kv" id="vmRNPG">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">DPA</div><div class="vm-kv" id="vmDPA">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">YTD</div><div class="vm-kv" id="vmYTD">—</div></div>
+        <div class="vm-kpi"><div class="vm-kl">Poids MASI</div><div class="vm-kv" id="vmPoids">—</div></div>
+      </div>
+    </div>
+    <div class="vmbody">
+      <div class="card" style="margin-bottom:10px">
+        <div class="ct" id="vmChartTitle">Historique cours <span class="cb" id="vmChartSub"></span></div>
+        <div style="height:220px"><canvas id="c-vmCours"></canvas></div>
+        <div style="height:55px;margin-top:4px"><canvas id="c-vmVol"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFY -->
+<div class="notif-wrap" id="notifWrap"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIG SUPABASE
+// ══════════════════════════════════════════════════════
+var SUPA_URL='https://cctylvtdqcxqmkoynavr.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjdHlsdnRkcWN4cW1rb3luYXZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzM4OTUsImV4cCI6MjA5MTc0OTg5NX0.VZpYItIJ0CXlGYHvylaMExwZQ8dyAiDoNro3xiqrKdw';
+var SUPA_REST=SUPA_URL+'/rest/v1/';
+
+async function sbFetch(path,opts){
+  var url=SUPA_REST+path;
+  var method=(opts&&opts.method)||'GET';
+  var headers={'Content-Type':'application/json','Accept':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY};
+  if(method==='POST')headers['Prefer']='return=minimal';
+  return fetch(url,{method:method,headers:headers,body:opts&&opts.body?opts.body:undefined});
+}
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+var allData=[];
+var REG={};
+var portfolio=JSON.parse(localStorage.getItem('masi_ptf')||'[]');
+var coursTickers=[];
+var coursDays=365;
+var fondPeriod='all';
+var vmDays=365;
+var vmTicker=null;
+var indSortK='mcap',indSortD=-1;
+
+var SC={'Bancaire':'#1d4ed8','Mines':'#92400e','Télécommunications':'#5b21b6',
+  'Télécommunications':'#5b21b6','Énergies':'#b45309','BTP':'#166534',
+  'Cimenteries':'#374151','Assurances':'#9f1239','Immobilier':'#0f766e',
+  'Agro & Boissons':'#3f6212','Distribution':'#78350f','Santé':'#991b1b',
+  'NTI':'#1e40af','Financement':'#6d28d9','Tourisme':'#9a3412',
+  'Transport mar.':'#134e4a','Auto':'#713f12','Agriculture':'#365314','Autres':'#374151'};
+var CPAL=['#2563eb','#0f766e','#9f1239','#166534','#7c3aed','#b45309','#0e7490','#be185d','#4d7c0f','#92400e'];
+
+var caData=[
+  {s:'Bancaire',ca24:91595,ca25:96426,rex24:52407,rex25:54993},
+  {s:'Télécommunications',ca24:36699,ca25:36681,rex24:6062,rex25:13547},
+  {s:'Énergies',ca24:36395,ca25:34752,rex24:3827,rex25:3608},
+  {s:'BTP',ca24:22431,ca25:31483,rex24:2310,rex25:4225},
+  {s:'Assurances',ca24:25630,ca25:28177,rex24:2902,rex25:3205},
+  {s:'Agro & Boissons',ca24:25733,ca25:26121,rex24:2599,rex25:2484},
+  {s:'Distribution',ca24:16418,ca25:18534,rex24:803,rex25:838},
+  {s:'Mines',ca24:10499,ca25:15950,rex24:1847,rex25:4996},
+  {s:'Cimenteries',ca24:12519,ca25:14285,rex24:4851,rex25:5847},
+  {s:'Auto',ca24:7924,ca25:10122,rex24:568,rex25:834},
+  {s:'Matériaux base',ca24:8431,ca25:9561,rex24:396,rex25:525},
+  {s:'Immobilier',ca24:5938,ca25:6411,rex24:1475,rex25:1880},
+  {s:'Transport mar.',ca24:5008,ca25:5785,rex24:0,rex25:0},
+  {s:'Santé',ca24:3791,ca25:5497,rex24:519,rex25:808},
+  {s:'Financement',ca24:1685,ca25:1810,rex24:1033,rex25:1111},
+  {s:'Agriculture',ca24:2328,ca25:2925,rex24:0,rex25:0},
+  {s:'Holdings',ca24:3835,ca25:3807,rex24:417,rex25:482}
+];
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+function ld(v){document.getElementById('ldbar').className='ldbar'+(v?' show':'');}
+function setDb(s,t){document.getElementById('dbDot').className='db-dot '+s;document.getElementById('dbTxt').textContent=t;}
+function fmt(v,d){if(v==null)return'—';return v.toLocaleString('fr-FR',{maximumFractionDigits:d||0});}
+function fmtMd(v){if(v==null)return'—';return v>=1000?(v/1000).toFixed(1)+' Md':v.toFixed(0)+' M';}
+function pct(v){if(v==null)return'—';return(v>=0?'+':'')+v.toFixed(2)+'%';}
+function pct1(v){if(v==null)return'—';return(v>=0?'+':'')+v.toFixed(1)+'%';}
+function tagV(v){if(v==null)return'<span class="tag te">—</span>';return v>0?'<span class="tag tp">+'+v.toFixed(2)+'%</span>':'<span class="tag '+(v<0?'tn':'te')+'">'+v.toFixed(2)+'%</span>';}
+function tagV1(v){if(v==null)return'<span class="tag te">—</span>';return v>0?'<span class="tag tp">+'+v.toFixed(1)+'%</span>':'<span class="tag '+(v<0?'tn':'te')+'">'+v.toFixed(1)+'%</span>';}
+function scBadge(s){var c=SC[s]||'#374151';return'<span class="sc-badge" style="background:'+c+'18;color:'+c+'">'+s+'</span>';}
+function notif(msg,type){
+  var w=document.getElementById('notifWrap');
+  var n=document.createElement('div');
+  n.className='notif';
+  n.style.background=type==='success'?'#15803d':type==='error'?'#b91c1c':'#2563eb';
+  n.textContent=msg;
+  w.appendChild(n);
+  setTimeout(function(){n.style.opacity='0';n.style.transition='opacity .3s';setTimeout(function(){if(n.parentNode)w.removeChild(n);},300);},3500);
+}
+function closeMd(id){document.getElementById(id).classList.remove('show');}
+function mkChart(id,type,data,opts){
+  if(REG[id])REG[id].destroy();
+  REG[id]=new Chart(document.getElementById(id),{type:type,data:data,options:opts});
+  return REG[id];
+}
+var SA={ticks:{color:'#9ca3af',font:{size:9}},grid:{color:'#e8eaed'},border:{color:'#e8eaed'}};
+var SAnogrid={ticks:{color:'#9ca3af',font:{size:9}},grid:{display:false},border:{color:'#e8eaed'}};
+
+// ══════════════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════════════
+function goTab(id,el){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
+  document.getElementById('pg-'+id).classList.add('on');
+  if(el)el.classList.add('on');
+  if(id==='realisations')renderRlz();
+  if(id==='cours')initCoursSelect();
+  if(id==='fondamentaux')initFondSelect();
+  if(id==='indicateurs')renderInd();
+  if(id==='secteurs')renderSecteurs();
+  if(id==='dividendes')renderDivs();
+  if(id==='portefeuille')renderPtf();
+}
+
+// ══════════════════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════════════════
+async function loadAllData(){
+  ld(true);
+  setDb('loading','Chargement...');
+  try{
+    const [rSec, rRes, rPrices] = await Promise.all([
+      sbFetch('securities?select=ticker,name,secteur,isin,poids_masi'),
+      sbFetch('resultats_2025?select=*'),
+      sbFetch('latest_prices?select=*')
+    ]);
+
+    if(!rSec.ok) throw new Error('securities ' + rSec.status);
+    if(!rRes.ok) throw new Error('resultats_2025 ' + rRes.status);
+    if(!rPrices.ok) throw new Error('latest_prices ' + rPrices.status);
+
+    const secs = await rSec.json();
+    const results = await rRes.json();
+    const prices = await rPrices.json();
+
+    const secMap = {};
+    secs.forEach(s => { secMap[s.ticker] = s; });
+
+    const priceMap = {};
+    prices.forEach(p => { priceMap[p.ticker] = p; });
+
+    allData = results.map(r => {
+      const s = secMap[r.ticker] || {};
+      const p = priceMap[r.ticker] || {};
+
+      return {
+        ticker: r.ticker,
+        name: s.name || r.company || r.ticker,
+        company: r.company || s.name || r.ticker,
+        secteur: s.secteur || 'Autres',
+        isin: s.isin || null,
+        poids_masi: s.poids_masi ?? null,
+
+        cours: p.cours ?? null,
+        variation: p.variation ?? null,
+        volume: p.volume ?? null,
+        captured_at: p.captured_at ?? null,
+
+        ca24: r.ca24 ?? null,
+        ca25: r.ca25 ?? null,
+        ca_var: r.ca_var ?? ((r.ca24 != null && r.ca24 !== 0 && r.ca25 != null) ? ((r.ca25 - r.ca24) / r.ca24) * 100 : null),
+
+        rex24: r.rex24 ?? null,
+        rex25: r.rex25 ?? null,
+        rex_var: r.rex_var ?? ((r.rex24 != null && r.rex24 !== 0 && r.rex25 != null) ? ((r.rex25 - r.rex24) / r.rex24) * 100 : null),
+
+        rnpg24: r.rnpg24 ?? null,
+        rnpg25: r.rnpg25 ?? null
+      };
+    });
+
+    allData.sort((a,b) => (b.ca25 || 0) - (a.ca25 || 0));
+
+    document.getElementById('masiVal').textContent='18 347';
+    document.getElementById('masiChg').textContent='▼ -0.54%';
+    document.getElementById('masiChg').style.color='var(--red)';
+    setDb('ok','Supabase connecté');
+
+    const onTab=document.querySelector('.ni.on');
+    if(onTab) onTab.click();
+    else renderRlz();
+
+  }catch(e){
+    console.error(e);
+    setDb('err','Erreur: '+e.message);
+    notif('Erreur connexion: '+e.message,'error');
+  }finally{
+    ld(false);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// RÉALISATIONS
+// ══════════════════════════════════════════════════════
+function initRlzFilters(){
+  var sec=document.getElementById('rlzSec'),tick=document.getElementById('rlzTick'),fs=document.getElementById('rlzFstrip');
+  if(sec.options.length>1)return;
+  var seen={};
+  allData.forEach(function(d){
+    if(d.secteur&&!seen[d.secteur]){seen[d.secteur]=true;sec.innerHTML+='<option value="'+d.secteur+'">'+d.secteur+'</option>';}
+    tick.innerHTML+='<option value="'+d.ticker+'">'+d.ticker+' — '+d.name+'</option>';
+  });
+  // Build filter strip (secteurs)
+  var stripHtml='<div class="fb on" onclick="rlzFilt(\'\',this)">Tous</div>';
+  caData.forEach(function(d){stripHtml+='<div class="fb" onclick="rlzFilt(\''+d.s+'\',this)">'+d.s+'</div>';});
+  fs.innerHTML=stripHtml;
+}
+
+var rlzSecFilter='';
+function rlzFilt(s,el){
+  rlzSecFilter=s;
+  document.querySelectorAll('#rlzFstrip .fb').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('rlzSec').value=s;
+  renderRlz();
+}
+
+function renderRlz(){
+  initRlzFilters();
+
+  const metric = document.getElementById('rlzMetric').value;
+  const sec = document.getElementById('rlzSec').value;
+  const tick = document.getElementById('rlzTick').value;
+  const sort = document.getElementById('rlzSort').value;
+  const q = (document.getElementById('rlzSrch').value || '').toLowerCase();
+
+  let data = allData.filter(d => d.ca25 != null || d.rex25 != null || d.rnpg25 != null);
+
+  if(sec) data = data.filter(d => d.secteur === sec);
+  if(tick) data = data.filter(d => d.ticker === tick);
+  if(q){
+    data = data.filter(d =>
+      (d.name || '').toLowerCase().includes(q) ||
+      (d.company || '').toLowerCase().includes(q) ||
+      (d.ticker || '').toLowerCase().includes(q)
+    );
+  }
+
+  data.sort((a,b) => {
+    const av = a[sort];
+    const bv = b[sort];
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    return bv - av;
+  });
+
+  document.getElementById('rlzCount').textContent = data.length + ' valeurs';
+
+  let tCA25=0,tCA24=0,tREX25=0,tREX24=0,tRNPG25=0;
+  data.forEach(d=>{
+    tCA25 += d.ca25 || 0;
+    tCA24 += d.ca24 || 0;
+    tREX25 += d.rex25 || 0;
+    tREX24 += d.rex24 || 0;
+    tRNPG25 += d.rnpg25 || 0;
+  });
+
+  document.getElementById('rkCA').textContent=fmtMd(tCA25);
+  document.getElementById('rkCA24').textContent=fmtMd(tCA24);
+  document.getElementById('rkREX').textContent=fmtMd(tREX25);
+  document.getElementById('rkRNPG').textContent=fmtMd(tRNPG25);
+  document.getElementById('rkCAv').textContent=tCA24>0?'Δ '+pct1(((tCA25-tCA24)/tCA24)*100)+' vs 2024':'';
+  document.getElementById('rkREXv').textContent=tREX24>0?'Δ '+pct1(((tREX25-tREX24)/tREX24)*100)+' vs 2024':'';
+  document.getElementById('rkMgREX').textContent=tCA25>0?((tREX25/tCA25)*100).toFixed(1)+'%':'—';
+  document.getElementById('rkMgNet').textContent=tCA25>0?((tRNPG25/tCA25)*100).toFixed(1)+'%':'—';
+
+  const sectorAgg = {};
+  data.forEach(d => {
+    const s = d.secteur || 'Autres';
+    if(!sectorAgg[s]){
+      sectorAgg[s] = {ca24:0,ca25:0,rex24:0,rex25:0,rnpg25:0};
+    }
+    sectorAgg[s].ca24 += d.ca24 || 0;
+    sectorAgg[s].ca25 += d.ca25 || 0;
+    sectorAgg[s].rex24 += d.rex24 || 0;
+    sectorAgg[s].rex25 += d.rex25 || 0;
+    sectorAgg[s].rnpg25 += d.rnpg25 || 0;
+  });
+
+  const sectors = Object.keys(sectorAgg).map(s => ({
+    secteur: s,
+    ca24: sectorAgg[s].ca24,
+    ca25: sectorAgg[s].ca25,
+    rex24: sectorAgg[s].rex24,
+    rex25: sectorAgg[s].rex25,
+    rnpg25: sectorAgg[s].rnpg25
+  }));
+
+  let wfBase = 0;
+  let wfTotal = 0;
+  let wfLabel = 'CA';
+  let wfRows = [];
+
+  if(metric === 'rex'){
+    wfBase = sectors.reduce((sum, x) => sum + (x.rex24 || 0), 0);
+    wfTotal = sectors.reduce((sum, x) => sum + (x.rex25 || 0), 0);
+    wfLabel = 'REX';
+    wfRows = sectors.map(x => ({secteur:x.secteur, delta:(x.rex25 || 0) - (x.rex24 || 0)}));
+  }else if(metric === 'rnpg'){
+    wfBase = 0;
+    wfTotal = sectors.reduce((sum, x) => sum + (x.rnpg25 || 0), 0);
+    wfLabel = 'RNPG';
+    wfRows = sectors.map(x => ({secteur:x.secteur, delta:(x.rnpg25 || 0)}));
+  }else{
+    wfBase = sectors.reduce((sum, x) => sum + (x.ca24 || 0), 0);
+    wfTotal = sectors.reduce((sum, x) => sum + (x.ca25 || 0), 0);
+    wfLabel = 'CA';
+    wfRows = sectors.map(x => ({secteur:x.secteur, delta:(x.ca25 || 0) - (x.ca24 || 0)}));
+  }
+
+  wfRows.sort((a,b) => b.delta - a.delta);
+
+  const wfLabels = metric === 'rnpg'
+    ? ['RNPG 2025'].concat(wfRows.map(x => x.secteur), ['Total'])
+    : ['Base 2024'].concat(wfRows.map(x => x.secteur), [wfLabel + ' 2025']);
+
+  const wfVals = metric === 'rnpg'
+    ? [0].concat(wfRows.map(x => x.delta), [wfTotal])
+    : [wfBase].concat(wfRows.map(x => x.delta), [wfTotal]);
+
+  const wfColors = ['#93c5fd']
+    .concat(wfRows.map(x => x.delta >= 0 ? '#4ade80' : '#f87171'))
+    .concat(['#60a5fa']);
+
+  document.getElementById('rlzWfTitle').innerHTML='Waterfall '+wfLabel+' 2024→2025 <span class="cb">MMAD par secteur</span>';
+
+  let cumulative = metric === 'rnpg' ? 0 : wfBase;
+  const offsetData = [];
+  const deltaData = [];
+  const colors = [];
+
+  if (metric === 'rnpg') {
+    offsetData.push(0);
+    deltaData.push(0);
+    colors.push('rgba(0,0,0,0)');
+  } else {
+    offsetData.push(0);
+    deltaData.push(wfBase);
+    colors.push('#93c5fd');
+  }
+
+  wfRows.forEach(x => {
+    if (x.delta >= 0) {
+      offsetData.push(cumulative);
+      deltaData.push(x.delta);
+      colors.push('#4ade80');
+    } else {
+      offsetData.push(cumulative + x.delta);
+      deltaData.push(Math.abs(x.delta));
+      colors.push('#f87171');
+    }
+    cumulative += x.delta;
+  });
+
+  offsetData.push(0);
+  deltaData.push(metric === 'rnpg' ? wfTotal : wfTotal);
+  colors.push('#60a5fa');
+
+  mkChart('c-rlzWf','bar',
+    {
+      labels: wfLabels,
+      datasets: [
+        {
+          label: 'Offset',
+          data: offsetData,
+          backgroundColor: 'rgba(0,0,0,0)',
+          borderWidth: 0,
+          stack: 'wf'
+        },
+        {
+          label: wfLabel,
+          data: deltaData,
+          backgroundColor: colors,
+          borderWidth: 0,
+          borderRadius: 3,
+          stack: 'wf'
+        }
+      ]
+    },
+    {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              if (ctx.datasetIndex === 0) return null;
+              const i = ctx.dataIndex;
+
+              if (metric !== 'rnpg' && i === 0) {
+                return 'Base 2024: ' + Math.round(wfBase).toLocaleString('fr-FR') + ' MMAD';
+              }
+              if (i === wfLabels.length - 1) {
+                return wfLabel + ' 2025: ' + Math.round(wfTotal).toLocaleString('fr-FR') + ' MMAD';
+              }
+
+              const delta = wfRows[i - 1].delta;
+              return (delta >= 0 ? '+' : '') + Math.round(delta).toLocaleString('fr-FR') + ' MMAD';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ...SAnogrid,
+          ticks: { color:'#9ca3af', font:{size:8.5}, maxRotation:35 }
+        },
+        y: {
+          stacked: true,
+          ...SA,
+          ticks: {
+            ...SA.ticks,
+            callback: function(v) {
+              return v >= 1000 ? (v/1000).toFixed(0) + 'k' : v;
+            }
+          }
+        }
+      }
+    }
+  );
+
+  const varData = data.filter(d => metric === 'rex' ? d.rex_var != null : d.ca_var != null);
+  varData.sort((a,b) => {
+    const av = metric === 'rex' ? (a.rex_var || 0) : (a.ca_var || 0);
+    const bv = metric === 'rex' ? (b.rex_var || 0) : (b.ca_var || 0);
+    return bv - av;
+  });
+
+  const top20 = varData.slice(0,20);
+  const varVals = top20.map(d => metric === 'rex' ? +(d.rex_var || 0).toFixed(1) : +(d.ca_var || 0).toFixed(1));
+
+  document.getElementById('rlzBarTitle').innerHTML='Variation '+(metric==='rex'?'REX':'CA')+' 2025 <span class="cb">% top 20</span>';
+  mkChart('c-rlzBar','bar',
+    {labels:top20.map(d=>d.ticker),
+     datasets:[{data:varVals,backgroundColor:varVals.map(v=>v>=0?'#bbf7d0':'#fecaca'),
+       borderColor:varVals.map(v=>v>=0?'#4ade80':'#f87171'),borderWidth:1,borderRadius:3}]},
+    {responsive:true,maintainAspectRatio:false,indexAxis:'y',
+     plugins:{legend:{display:false},tooltip:{callbacks:{label:function(i){return(i.raw>=0?'+':'')+i.raw+'%';}}}},
+     scales:{x:{...SA,ticks:{...SA.ticks,callback:function(v){return v+'%';}}},y:{...SAnogrid}}});
+
+  const cols = metric==='rnpg'
+    ? [['CA 2025','ca25'],['RNPG 2025','rnpg25'],['Δ CA','ca_var']]
+    : metric==='rex'
+    ? [['CA 2024','ca24'],['CA 2025','ca25'],['Δ CA','ca_var'],['REX 2024','rex24'],['REX 2025','rex25'],['Δ REX','rex_var']]
+    : [['CA 2024','ca24'],['CA 2025','ca25'],['Δ CA','ca_var'],['REX 2024','rex24'],['REX 2025','rex25'],['Δ REX','rex_var'],['RNPG 2025','rnpg25']];
+
+  document.getElementById('rlzThead').innerHTML =
+    '<th>Valeur</th><th>Ticker</th>' +
+    cols.map(c => '<th onclick="rlzSortBy(\''+c[1]+'\')">'+c[0]+'</th>').join('') +
+    '<th>Secteur</th>';
+
+  let html='';
+  data.forEach(d=>{
+    html += '<tr style="cursor:pointer" onclick="openVm(\''+d.ticker+'\')">';
+    html += '<td>'+(d.name || d.company || d.ticker)+'</td>';
+    html += '<td style="font-family:var(--mono);color:var(--blue2)">'+d.ticker+'</td>';
+    cols.forEach(c=>{
+      const v = d[c[1]];
+      if(c[1]==='ca_var' || c[1]==='rex_var') html += '<td>'+tagV1(v)+'</td>';
+      else html += '<td style="font-family:var(--mono)">'+(v!=null ? v.toLocaleString('fr-FR',{maximumFractionDigits:1}) : '—')+'</td>';
+    });
+    html += '<td>'+scBadge(d.secteur || 'Autres')+'</td></tr>';
+  });
+  document.getElementById('rlzBody').innerHTML = html || '<tr><td colspan="12" style="text-align:center;padding:20px;color:var(--ink4)">Aucune donnée</td></tr>';
+}
+
+function rlzSortBy(k){
+  document.getElementById('rlzSort').value=k;renderRlz();
+}
+
+// ══════════════════════════════════════════════════════
+// ÉVOLUTION DES COURS
+// ══════════════════════════════════════════════════════
+function initCoursSelect(){
+  var sel=document.getElementById('coursAddSel');
+  if(sel.options.length>1)return;
+  allData.forEach(function(d){sel.innerHTML+='<option value="'+d.ticker+'">'+d.ticker+' — '+d.name+'</option>';});
+}
+
+function addCoursTicker(){
+  var sel=document.getElementById('coursAddSel');
+  var t=sel.value;if(!t)return;
+  if(coursTickers.indexOf(t)>=0){notif(t+' déjà sélectionné','error');return;}
+  if(coursTickers.length>=8){notif('Maximum 8 valeurs','error');return;}
+  coursTickers.push(t);sel.value='';
+  renderCoursChips();drawCours();
+}
+
+function removeCoursT(t){coursTickers=coursTickers.filter(function(x){return x!==t;});renderCoursChips();drawCours();}
+function clearCours(){coursTickers=[];renderCoursChips();if(REG['c-cours']){REG['c-cours'].destroy();delete REG['c-cours'];}if(REG['c-coursPerf']){REG['c-coursPerf'].destroy();delete REG['c-coursPerf'];}}
+
+function renderCoursChips(){
+  document.getElementById('coursChips').innerHTML=coursTickers.map(function(t,i){
+    var d=allData.find(function(x){return x.ticker===t;})||{};
+    var col=CPAL[i%CPAL.length];
+    return'<div class="cours-chip" style="border-color:'+col+'44;background:'+col+'11" onclick="removeCoursT(\''+t+'\')">'
+      +'<span style="width:8px;height:8px;border-radius:50%;background:'+col+';flex-shrink:0"></span>'
+      +'<span style="font-weight:500;font-family:var(--mono);font-size:11px;color:'+col+'">'+t+'</span>'
+      +'<span style="font-size:10px;color:var(--ink3)">'+d.name+'</span>'
+      +'<span style="color:var(--ink4);font-size:11px">✕</span></div>';
+  }).join('');
+}
+
+function setCoursP(days,el){
+  coursDays=days;
+  document.querySelectorAll('#pg-cours .pbtn').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');drawCours();
+}
+
+async function drawCours(){
+  if(!coursTickers.length)return;
+  var b100=document.getElementById('coursB100').checked;
+  var since=new Date();since.setDate(since.getDate()-coursDays);
+  var sinceStr=since.toISOString().split('T')[0];
+  var datasets=[];var allLabels=new Set();
+
+  for(var i=0;i<coursTickers.length;i++){
+    var t=coursTickers[i];
+    try{
+      var r=await sbFetch('price_history?ticker=eq.'+t+'&trade_date=gte.'+sinceStr+'&order=trade_date.asc&select=trade_date,cours');
+      if(!r.ok)continue;
+      var data=await r.json();
+      if(!data.length)continue;
+      data.forEach(function(d){allLabels.add(d.trade_date);});
+      var vals=data.map(function(d){return d.cours;});
+      if(b100&&vals[0]){var base=vals[0];vals=vals.map(function(v){return v?+(v/base*100).toFixed(2):null;});}
+      var d2=allData.find(function(x){return x.ticker===t;})||{};
+      datasets.push({label:t,data:data.map(function(d,j){return{x:d.trade_date,y:vals[j]};}),
+        borderColor:CPAL[i%CPAL.length],backgroundColor:'transparent',
+        borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0.1});
+    }catch(e){console.error(t,e);}
+  }
+
+  var labels=Array.from(allLabels).sort();
+  document.getElementById('coursTitle').innerHTML='Évolution des cours '+(b100?'— Base 100':'— MAD')+' <span class="cb">'+labels.length+' séances · '+coursTickers.join(', ')+'</span>';
+
+  mkChart('c-cours','line',{datasets:datasets},{
+    responsive:true,maintainAspectRatio:false,
+    parsing:{xAxisKey:'x',yAxisKey:'y'},
+    plugins:{legend:{display:true,position:'top',labels:{font:{size:10},boxWidth:10,padding:10}},
+      tooltip:{mode:'index',intersect:false,backgroundColor:'#fff',titleColor:'#111827',bodyColor:'#374151',borderColor:'#e8eaed',borderWidth:1,padding:10,
+        callbacks:{label:function(i){return' '+i.dataset.label+': '+(i.raw&&i.raw.y?i.raw.y.toLocaleString('fr-FR',{maximumFractionDigits:b100?2:2})+(b100?'':' MAD'):'—');}}}},
+    scales:{x:{type:'category',ticks:{color:'#9ca3af',font:{size:9},maxTicksLimit:10,maxRotation:0},grid:{display:false},border:{color:'#e8eaed'}},
+      y:{ticks:{color:'#9ca3af',font:{size:10},callback:function(v){return b100?v.toFixed(0):v.toLocaleString();}},grid:{color:'#e8eaed'},border:{color:'#e8eaed'}}},
+    interaction:{mode:'index',intersect:false}
+  });
+
+  // Perf bar
+  var perfs=[];
+  datasets.forEach(function(ds){
+    var pts=ds.data.filter(function(p){return p.y!=null;});
+    if(pts.length<2)return;
+    var perf=b100?(pts[pts.length-1].y-100):((pts[pts.length-1].y-pts[0].y)/pts[0].y*100);
+    perfs.push({label:ds.label,pct:+perf.toFixed(2),color:ds.borderColor});
+  });
+  if(perfs.length){
+    mkChart('c-coursPerf','bar',
+      {labels:perfs.map(function(p){return p.label;}),
+       datasets:[{data:perfs.map(function(p){return p.pct;}),
+         backgroundColor:perfs.map(function(p){return p.pct>=0?p.color+'33':p.color+'33';}),
+         borderColor:perfs.map(function(p){return p.color;}),borderWidth:2,borderRadius:4}]},
+      {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+       scales:{x:{...SAnogrid},y:{...SA,ticks:{...SA.ticks,callback:function(v){return(v>=0?'+':'')+v.toFixed(1)+'%';}}}}});
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// FONDAMENTAUX
+// ══════════════════════════════════════════════════════
+function initFondSelect(){
+  var sel=document.getElementById('fondSel');
+  sel.innerHTML='<option value="">Sélectionner une valeur...</option>';
+  allData.forEach(function(d){sel.innerHTML+='<option value="'+d.ticker+'">'+d.ticker+' — '+d.name+'</option>';});
+}
+
+function setFondP(p,el){
+  fondPeriod=p;
+  document.querySelectorAll('#pg-fondamentaux .pbtn').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+  var t=document.getElementById('fondSel').value;
+  if(t)loadFond(t);
+}
+
+async function loadFond(ticker){
+  document.getElementById('fondContent').style.display='none';
+  document.getElementById('fondEmpty').style.display='';
+  if(!ticker)return;
+  document.getElementById('fondEmpty').innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Chargement...</div></div>';
+  try{
+    var r=await sbFetch('financials_history?ticker=eq.'+ticker+'&order=annee.asc');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var data=await r.json();
+    if(!data.length){document.getElementById('fondEmpty').innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">Aucune donnée</div><div class="empty-sub">Pas de données fondamentales pour '+ticker+'</div></div>';return;}
+
+    if(fondPeriod==='5')data=data.filter(function(d){return d.annee>=2020;});
+    if(fondPeriod==='3')data=data.filter(function(d){return d.annee>=2022;});
+
+    document.getElementById('fondEmpty').style.display='none';
+    document.getElementById('fondContent').style.display='block';
+
+    var sec=allData.find(function(d){return d.ticker===ticker;})||{};
+    document.getElementById('fondName').textContent=sec.name||ticker;
+    document.getElementById('fondTick').textContent=ticker;
+    document.getElementById('fondSect').textContent=sec.secteur||'';
+    document.getElementById('fondCours').textContent=sec.cours?sec.cours.toLocaleString('fr-FR',{maximumFractionDigits:2})+' MAD':'—';
+    var vc=sec.variation;
+    var ve=document.getElementById('fondVar');
+    ve.textContent=vc!=null?(vc>=0?'+':'')+vc.toFixed(2)+'%':'—';
+    ve.className='vm-var '+(vc==null?'':vc>=0?'pos':'neg');
+
+    var last=data[data.length-1]||{};
+    document.getElementById('fondPE').textContent=last.pe?last.pe.toFixed(1)+'x':'N/S';
+    document.getElementById('fondDY').textContent=last.dy?(last.dy*100).toFixed(1)+'%':'NC';
+    document.getElementById('fondROE').textContent=last.roe?(last.roe*100).toFixed(1)+'%':'—';
+    document.getElementById('fondGear').textContent=last.gearing?(last.gearing*100).toFixed(1)+'%':'—';
+    document.getElementById('fondMgR').textContent=last.marge_rex?(last.marge_rex*100).toFixed(1)+'%':'—';
+    document.getElementById('fondMgN').textContent=last.marge_nette?(last.marge_nette*100).toFixed(1)+'%':'—';
+    document.getElementById('fondFP').textContent=last.fonds_propres?fmtMd(last.fonds_propres):'—';
+    document.getElementById('fondDT').textContent=last.dettes_financement?fmtMd(last.dettes_financement):'—';
+    document.getElementById('fondTableTtl').textContent='Historique '+ticker+' — '+data.length+' années';
+
+    var yrs=data.map(function(d){return d.annee;});
+    mkChart('c-fCA','bar',{labels:yrs,datasets:[
+      {label:'CA',data:data.map(function(d){return d.ca;}),backgroundColor:'#bfdbfe',borderColor:'#60a5fa',borderWidth:1,borderRadius:3},
+      {label:'REX',data:data.map(function(d){return d.rex;}),backgroundColor:'#bbf7d0',borderColor:'#4ade80',borderWidth:1,borderRadius:3},
+      {label:'RNPG',data:data.map(function(d){return d.rnpg;}),backgroundColor:'#e0e7ff',borderColor:'#818cf8',borderWidth:1,borderRadius:3}
+    ]},{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:9,padding:8}}},
+      scales:{x:{...SAnogrid},y:{...SA,ticks:{...SA.ticks,callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}}}}});
+
+    mkChart('c-fMg','line',{labels:yrs,datasets:[
+      {label:'Marge REX %',data:data.map(function(d){return d.marge_rex?+(d.marge_rex*100).toFixed(1):null;}),borderColor:'#2563eb',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3},
+      {label:'Marge Nette %',data:data.map(function(d){return d.marge_nette?+(d.marge_nette*100).toFixed(1):null;}),borderColor:'#0f766e',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3},
+      {label:'ROE %',data:data.map(function(d){return d.roe?+(d.roe*100).toFixed(1):null;}),borderColor:'#9f1239',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3}
+    ]},{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:9,padding:8}}},
+      scales:{x:{...SAnogrid},y:{...SA,ticks:{...SA.ticks,callback:function(v){return v+'%';}}}}});
+
+    mkChart('c-fBilan','bar',{labels:yrs,datasets:[
+      {label:'Fonds propres',data:data.map(function(d){return d.fonds_propres;}),backgroundColor:'#bfdbfe',borderColor:'#60a5fa',borderWidth:1,borderRadius:3},
+      {label:'Dettes fin.',data:data.map(function(d){return d.dettes_financement;}),backgroundColor:'#fecaca',borderColor:'#f87171',borderWidth:1,borderRadius:3}
+    ]},{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:9,padding:8}}},
+      scales:{x:{...SAnogrid},y:{...SA,ticks:{...SA.ticks,callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}}}}});
+
+    mkChart('c-fCours','line',{labels:yrs,datasets:[
+      {label:'Cours clôture',data:data.map(function(d){return d.cours_cloture;}),borderColor:'#7c3aed',backgroundColor:'#7c3aed11',fill:true,borderWidth:2,pointRadius:3,tension:0.3}
+    ]},{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{...SAnogrid},y:{...SA,ticks:{...SA.ticks,callback:function(v){return v.toLocaleString();}}}}});
+
+    var html='';
+    data.slice().reverse().forEach(function(d){
+      html+='<tr><td style="font-weight:500">'+d.annee+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.ca?d.ca.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.rex?d.rex.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.rnpg?d.rnpg.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td>'+(d.marge_rex?(d.marge_rex*100).toFixed(1)+'%':'—')+'</td>'
+        +'<td>'+(d.marge_nette?(d.marge_nette*100).toFixed(1)+'%':'—')+'</td>'
+        +'<td>'+(d.roe?(d.roe*100).toFixed(1)+'%':'—')+'</td>'
+        +'<td>'+(d.gearing?(d.gearing*100).toFixed(1)+'%':'—')+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.fonds_propres?d.fonds_propres.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.dettes_financement?d.dettes_financement.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.bfr?d.bfr.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.caf?d.caf.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td style="font-family:var(--mono)">'+(d.capex?d.capex.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+        +'<td>'+(d.pe?d.pe.toFixed(1)+'x':'—')+'</td>'
+        +'<td>'+(d.dy?(d.dy*100).toFixed(1)+'%':'—')+'</td>'
+        +'<td style="font-weight:500;font-family:var(--mono)">'+(d.cours_cloture?d.cours_cloture.toFixed(2):'—')+'</td>'
+        +'</tr>';
+    });
+    document.getElementById('fondBody').innerHTML=html;
+
+  }catch(e){
+    document.getElementById('fondEmpty').innerHTML='<div class="empty"><div class="empty-icon">❌</div><div class="empty-title">Erreur</div><div class="empty-sub">'+e.message+'</div></div>';
+    console.error(e);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// INDICATEURS BOURSIERS
+// ══════════════════════════════════════════════════════
+function initIndFilters(){
+  var sel=document.getElementById('indSec');
+  if(sel.options.length>1)return;
+  var seen={};
+  allData.forEach(function(d){if(d.secteur&&!seen[d.secteur]){seen[d.secteur]=true;sel.innerHTML+='<option value="'+d.secteur+'">'+d.secteur+'</option>';}});
+}
+
+function sortInd(k){if(indSortK===k)indSortD*=-1;else{indSortK=k;indSortD=-1;}renderInd();}
+
+function renderInd(){
+  initIndFilters();
+  var sec=document.getElementById('indSec').value;
+  var sort=document.getElementById('indSort').value;
+  var q=(document.getElementById('indSrch').value||'').toLowerCase();
+
+  var data=allData.slice();
+  if(sec)data=data.filter(function(d){return d.secteur===sec;});
+  if(q)data=data.filter(function(d){return d.name.toLowerCase().indexOf(q)>=0||d.ticker.toLowerCase().indexOf(q)>=0;});
+
+  var sk=sort||indSortK;
+  data.sort(function(a,b){var av=a[sk],bv=b[sk];if(av==null)return 1;if(bv==null)return -1;return (bv-av)*indSortD;});
+
+  // KPIs
+  var totalMcap=data.reduce(function(s,d){return s+(d.mcap||0);},0);
+  document.getElementById('indMcap').textContent=totalMcap>1000?(totalMcap/1000).toFixed(0)+' Md':totalMcap.toFixed(0);
+
+  var pes=data.filter(function(d){return d.pe&&d.pe>0&&d.pe<100;}).map(function(d){return d.pe;});
+  pes.sort(function(a,b){return a-b;});
+  var medPE=pes.length?pes[Math.floor(pes.length/2)].toFixed(1)+'x':'—';
+  document.getElementById('indPE').textContent=medPE;
+
+  var dys=data.filter(function(d){return d.dy&&d.dy>0;}).map(function(d){return d.dy;});
+  var avgDY=dys.length?(dys.reduce(function(s,v){return s+v;},0)/dys.length).toFixed(1)+'%':'—';
+  document.getElementById('indDY').textContent=avgDY;
+
+  document.getElementById('indH').textContent=data.filter(function(d){return d.ytd&&d.ytd>0;}).length;
+  document.getElementById('indB').textContent=data.filter(function(d){return d.ytd&&d.ytd<0;}).length;
+
+  // Table
+  var html='';
+  data.forEach(function(d){
+    var peC=d.pe?d.pe>30?'color:var(--red)':d.pe<13?'color:var(--green)':'':'';
+    var dyC=d.dy?d.dy>=5?'color:var(--green)':d.dy>=3?'color:var(--blue2)':'':'';
+    html+='<tr style="cursor:pointer" onclick="openVm(\''+d.ticker+'\')">'
+      +'<td><strong>'+d.name+'</strong></td>'
+      +'<td style="font-family:var(--mono);font-weight:600">'+(d.cours?d.cours.toLocaleString('fr-FR',{maximumFractionDigits:2}):'—')+'</td>'
+      +'<td>'+tagV(d.ytd)+'</td>'
+      +'<td style="font-family:var(--mono)">'+(d.mcap?d.mcap.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+      +'<td style="font-family:var(--mono);'+peC+'">'+(d.pe?d.pe.toFixed(1)+'x':'N/S')+'</td>'
+      +'<td style="font-family:var(--mono)">'+(d.pb?d.pb.toFixed(1)+'x':'—')+'</td>'
+      +'<td style="font-family:var(--mono);'+dyC+'">'+(d.dy?d.dy.toFixed(1)+'%':'NC')+'</td>'
+      +'<td style="font-family:var(--mono)">'+(d.dpa?d.dpa+' MAD':'NC')+'</td>'
+      +'<td style="font-family:var(--mono);color:var(--blue2)">'+(d.poids_masi?d.poids_masi.toFixed(3)+'%':'—')+'</td>'
+      +'<td>'+scBadge(d.secteur||'—')+'</td></tr>';
+  });
+  document.getElementById('indBody').innerHTML=html||'<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--ink4)">Aucune donnée</td></tr>';
+}
+
+// ══════════════════════════════════════════════════════
+// SECTEURS
+// ══════════════════════════════════════════════════════
+function renderSecteurs(){
+  var bySec={};
+  allData.forEach(function(d){
+    if(!d.secteur)return;
+    if(!bySec[d.secteur])bySec[d.secteur]={ca25:0,rex25:0,rnpg25:0};
+    bySec[d.secteur].ca25+=(d.ca25||0);
+    bySec[d.secteur].rex25+=(d.rex25||0);
+    bySec[d.secteur].rnpg25+=(d.rnpg25||0);
+  });
+
+  var secs=Object.keys(bySec).filter(function(s){return bySec[s].ca25>0;});
+  secs.sort(function(a,b){return bySec[b].ca25-bySec[a].ca25;});
+  var cols=secs.map(function(s){return SC[s]||'#374151';});
+
+  mkChart('c-secCA','bar',
+    {labels:secs,datasets:[{data:secs.map(function(s){return bySec[s].ca25;}),
+      backgroundColor:cols.map(function(c){return c+'33';}),borderColor:cols,borderWidth:2,borderRadius:4}]},
+    {responsive:true,maintainAspectRatio:false,indexAxis:'y',
+     plugins:{legend:{display:false},tooltip:{callbacks:{label:function(i){return' '+Math.round(i.raw).toLocaleString()+' MMAD';}}},
+       onClick:function(e,els){if(els.length)renderSecDrill(secs[els[0].index]);}},
+     scales:{x:{...SA,ticks:{...SA.ticks,callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}}},y:{...SAnogrid,ticks:{color:'#374151',font:{size:10}}}}});
+
+  // Make chart clickable
+  var ca=document.getElementById('c-secCA');
+  ca.style.cursor='pointer';
+  ca.onclick=function(e){
+    var chart=REG['c-secCA'];
+    var pts=chart.getElementsAtEventForMode(e,'nearest',{intersect:true},false);
+    if(pts.length)renderSecDrill(secs[pts[0].index]);
+  };
+
+  mkChart('c-secREX','bar',
+    {labels:secs,datasets:[{data:secs.map(function(s){return bySec[s].rex25;}),
+      backgroundColor:cols.map(function(c){return c+'33';}),borderColor:cols,borderWidth:2,borderRadius:4}]},
+    {responsive:true,maintainAspectRatio:false,indexAxis:'y',
+     plugins:{legend:{display:false},tooltip:{callbacks:{label:function(i){return' '+Math.round(i.raw).toLocaleString()+' MMAD';}}}},
+     scales:{x:{...SA,ticks:{...SA.ticks,callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}}},y:{...SAnogrid,ticks:{color:'#374151',font:{size:10}}}}});
+}
+
+function renderSecDrill(sec){
+  var vals=allData.filter(function(d){return d.secteur===sec&&(d.ca25||d.rex25||d.rnpg25);});
+  vals.sort(function(a,b){return(b.ca25||0)-(a.ca25||0);});
+  var col=SC[sec]||'#374151';
+  var el=document.getElementById('secDrill');
+  var html='<div class="tbox" style="margin-top:12px">'
+    +'<div class="tbar"><span class="tttl" style="color:'+col+'">'+sec+' — '+vals.length+' valeurs</span>'
+    +'<button class="btnc" style="font-size:11px;padding:4px 10px" onclick="document.getElementById(\'secDrill\').style.display=\'none\'">✕ Fermer</button></div>'
+    +'<div class="tsc"><table><thead><tr>'
+    +'<th style="text-align:left">Valeur</th><th>Cours</th><th>YTD</th>'
+    +'<th>CA 2025</th><th>Δ CA</th><th>REX 2025</th><th>Δ REX</th><th>RNPG 2025</th>'
+    +'<th>P/E</th><th>D/Y</th><th>Mkt Cap</th></tr></thead><tbody>';
+  vals.forEach(function(d){
+    html+='<tr style="cursor:pointer" onclick="openVm(\''+d.ticker+'\')">'
+      +'<td><strong>'+d.name+'</strong><br><span style="font-family:var(--mono);font-size:9px;color:var(--blue2)">'+d.ticker+'</span></td>'
+      +'<td style="font-family:var(--mono);font-weight:600">'+(d.cours?d.cours.toLocaleString('fr-FR',{maximumFractionDigits:2}):'—')+'</td>'
+      +'<td>'+tagV(d.ytd)+'</td>'
+      +'<td style="font-family:var(--mono)">'+(d.ca25?d.ca25.toLocaleString():'—')+'</td>'
+      +'<td>'+tagV1(d.ca_var)+'</td>'
+      +'<td style="font-family:var(--mono)">'+(d.rex25?d.rex25.toLocaleString():'—')+'</td>'
+      +'<td>'+tagV1(d.rex_var)+'</td>'
+      +'<td style="font-family:var(--mono)">'+(d.rnpg25?d.rnpg25.toLocaleString():'—')+'</td>'
+      +'<td>'+(d.pe?d.pe.toFixed(1)+'x':'N/S')+'</td>'
+      +'<td>'+(d.dy?d.dy.toFixed(1)+'%':'NC')+'</td>'
+      +'<td style="font-family:var(--mono)">'+(d.mcap?d.mcap.toLocaleString('fr-FR',{maximumFractionDigits:0}):'—')+'</td>'
+      +'</tr>';
+  });
+  html+='</tbody></table></div></div>';
+  el.innerHTML=html;el.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ══════════════════════════════════════════════════════
+// DIVIDENDES
+// ══════════════════════════════════════════════════════
+function renderDivs(){
+  var withDPA=allData.filter(function(d){return d.dpa&&d.dpa>0&&d.cours;});
+  withDPA.sort(function(a,b){return(b.dy||0)-(a.dy||0);});
+
+  var avgDY=withDPA.length?(withDPA.reduce(function(s,d){return s+(d.dy||0);},0)/withDPA.length).toFixed(1)+'%':'—';
+  document.getElementById('divDY').textContent=avgDY;
+  document.getElementById('divH').textContent=withDPA.filter(function(d){return d.dy>=5;}).length;
+  document.getElementById('divZ').textContent=allData.filter(function(d){return !d.dpa||d.dpa===0;}).length;
+  if(withDPA.length)document.getElementById('divTop').textContent=withDPA[0].ticker+' — '+withDPA[0].dy.toFixed(1)+'%';
+
+  var top15=withDPA.slice(0,15);
+  mkChart('c-divDY','bar',
+    {labels:top15.map(function(d){return d.ticker;}),
+     datasets:[{data:top15.map(function(d){return+(d.dy||0).toFixed(1);}),
+       backgroundColor:top15.map(function(d){return d.dy>=5?'#bbf7d0':d.dy>=3?'#bfdbfe':'#e0e7ff';}),
+       borderColor:top15.map(function(d){return d.dy>=5?'#4ade80':d.dy>=3?'#60a5fa':'#818cf8';}),borderWidth:1,borderRadius:4}]},
+    {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(i){return' '+i.raw+'%';}}},
+      annotation:{annotations:[{type:'line',yMin:3,yMax:3,borderColor:'#2563eb',borderWidth:1,borderDash:[4,4]}]}},
+     scales:{x:{...SAnogrid},y:{...SA,ticks:{...SA.ticks,callback:function(v){return v+'%';}}}}});
+
+  var top15dpa=withDPA.slice().sort(function(a,b){return(b.dpa||0)-(a.dpa||0);}).slice(0,15);
+  mkChart('c-divDPA','bar',
+    {labels:top15dpa.map(function(d){return d.ticker;}),
+     datasets:[{data:top15dpa.map(function(d){return d.dpa||0;}),
+       backgroundColor:'#e0e7ff',borderColor:'#818cf8',borderWidth:1,borderRadius:4}]},
+    {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(i){return' '+i.raw+' MAD/action';}}}},
+     scales:{x:{...SAnogrid},y:{...SA}}});
+
+  renderDivTable();
+}
+
+function renderDivTable(){
+  var q=(document.getElementById('divSrch').value||'').toLowerCase();
+  var data=allData.filter(function(d){return d.dpa!=null;});
+  if(q)data=data.filter(function(d){return d.name.toLowerCase().indexOf(q)>=0||d.ticker.toLowerCase().indexOf(q)>=0;});
+  data.sort(function(a,b){return(b.dy||0)-(a.dy||0);});
+  var html='';
+  data.forEach(function(d){
+    var dyC=d.dy&&d.dy>=5?'color:var(--green);font-weight:500':d.dy&&d.dy>=3?'color:var(--blue2)':'';
+    html+='<tr style="cursor:pointer" onclick="openVm(\''+d.ticker+'\')">'
+      +'<td><strong>'+d.name+'</strong><br><span style="font-family:var(--mono);font-size:9px;color:var(--blue2)">'+d.ticker+'</span></td>'
+      +'<td style="font-family:var(--mono)">'+(d.cours?d.cours.toLocaleString('fr-FR',{maximumFractionDigits:2}):'—')+'</td>'
+      +'<td style="font-family:var(--mono);font-weight:600">'+(d.dpa?d.dpa+' MAD':'NC')+'</td>'
+      +'<td style="font-family:var(--mono);'+dyC+'">'+(d.dy?d.dy.toFixed(1)+'%':'NC')+'</td>'
+      +'<td>'+(d.pe?d.pe.toFixed(1)+'x':'N/S')+'</td>'
+      +'<td>'+scBadge(d.secteur||'—')+'</td></tr>';
+  });
+  document.getElementById('divBody').innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════
+// PORTEFEUILLE
+// ══════════════════════════════════════════════════════
+function savePtf(){localStorage.setItem('masi_ptf',JSON.stringify(portfolio));}
+
+function openAddPtf(){
+  var sel=document.getElementById('ptfSel');
+  sel.innerHTML='<option value="">Choisir...</option>';
+  allData.forEach(function(d){sel.innerHTML+='<option value="'+d.ticker+'">'+d.ticker+' — '+d.name+'</option>';});
+  sel.onchange=function(){
+    var live=allData.find(function(d){return d.ticker===sel.value;});
+    if(live&&live.cours)document.getElementById('ptfPx').value=live.cours;
+  };
+  document.getElementById('ptfDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('mdPtf').classList.add('show');
+}
+
+function addPtf(){
+  var t=document.getElementById('ptfSel').value;
+  var qty=parseFloat(document.getElementById('ptfQty').value);
+  var px=parseFloat(document.getElementById('ptfPx').value);
+  var date=document.getElementById('ptfDate').value;
+  if(!t||!qty||!px){notif('Remplir tous les champs','error');return;}
+  var sec=allData.find(function(d){return d.ticker===t;});
+  if(!sec){notif('Valeur introuvable','error');return;}
+  var ex=portfolio.findIndex(function(p){return p.ticker===t;});
+  if(ex>=0){
+    var old=portfolio[ex];
+    var nq=old.qty+qty;
+    portfolio[ex]={ticker:t,name:sec.name,qty:nq,px:+(old.qty*old.px+qty*px)/nq,date:old.date};
+  }else{
+    portfolio.push({ticker:t,name:sec.name,qty:qty,px:px,date:date});
+  }
+  savePtf();closeMd('mdPtf');renderPtf();notif(t+' ajouté','success');
+}
+
+function removePtf(t){if(!confirm('Supprimer '+t+' ?'))return;portfolio=portfolio.filter(function(p){return p.ticker!==t;});savePtf();renderPtf();}
+function clearPtf(){if(!confirm('Vider tout le portefeuille ?'))return;portfolio=[];savePtf();renderPtf();}
+
+function renderPtf(){
+  if(!portfolio.length){
+    document.getElementById('ptfBody').innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--ink4)">Portefeuille vide — cliquez sur "+ Ajouter position"</td></tr>';
+    ['ptfMV','ptfCR','ptfPnl','ptfDay','ptfNb'].forEach(function(id){document.getElementById(id).textContent='—';});
+    document.getElementById('ptfNb').textContent='0';
+    return;
+  }
+  var tMV=0,tCR=0,tPnl=0,tDay=0;
+  var html='';
+  portfolio.forEach(function(p){
+    var live=allData.find(function(d){return d.ticker===p.ticker;})||{};
+    var cours=live.cours||p.px;
+    var mv=cours*p.qty,cr=p.px*p.qty,pnl=mv-cr,pnlP=cr>0?pnl/cr*100:0;
+    var day=live.variation?mv*live.variation/100:0;
+    tMV+=mv;tCR+=cr;tPnl+=pnl;tDay+=day;
+    var pc=pnl>=0?'pnl-pos':'pnl-neg',dc=day>=0?'pnl-pos':'pnl-neg';
+    html+='<tr>'
+      +'<td><strong>'+p.ticker+'</strong><br><span style="font-size:10px;color:var(--ink4)">'+p.name+'</span></td>'
+      +'<td style="font-family:var(--mono)">'+p.qty.toLocaleString()+'</td>'
+      +'<td style="font-family:var(--mono)">'+p.px.toLocaleString('fr-FR',{maximumFractionDigits:2})+'</td>'
+      +'<td style="font-family:var(--mono);font-weight:600">'+(cours?cours.toLocaleString('fr-FR',{maximumFractionDigits:2}):'—')+'</td>'
+      +'<td style="font-family:var(--mono)">'+mv.toLocaleString('fr-FR',{maximumFractionDigits:0})+'</td>'
+      +'<td class="'+pc+'">'+((pnl>=0?'+':'')+pnl.toLocaleString('fr-FR',{maximumFractionDigits:0}))+'</td>'
+      +'<td class="'+pc+'">'+((pnlP>=0?'+':'')+pnlP.toFixed(2)+'%')+'</td>'
+      +'<td class="'+dc+'">'+((day>=0?'+':'')+day.toLocaleString('fr-FR',{maximumFractionDigits:0}))+'</td>'
+      +'<td><button onclick="removePtf(\''+p.ticker+'\')" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:14px">✕</button></td>'
+      +'</tr>';
+  });
+  document.getElementById('ptfBody').innerHTML=html;
+  var pp=(tCR>0?tPnl/tCR*100:0).toFixed(2);
+  document.getElementById('ptfMV').textContent=tMV.toLocaleString('fr-FR',{maximumFractionDigits:0})+' MAD';
+  document.getElementById('ptfCR').textContent=tCR.toLocaleString('fr-FR',{maximumFractionDigits:0})+' MAD';
+  document.getElementById('ptfPnl').textContent=(tPnl>=0?'+':'')+tPnl.toLocaleString('fr-FR',{maximumFractionDigits:0})+' MAD';
+  document.getElementById('ptfPnl').className='kv '+(tPnl>=0?'pos':'neg');
+  document.getElementById('ptfPnlP').textContent=(pp>=0?'+':'')+pp+'%';
+  document.getElementById('ptfPnlP').className='ks '+(tPnl>=0?'pos':'neg');
+  document.getElementById('ptfDay').textContent=(tDay>=0?'+':'')+tDay.toLocaleString('fr-FR',{maximumFractionDigits:0})+' MAD';
+  document.getElementById('ptfDay').className='kv '+(tDay>=0?'pos':'neg');
+  document.getElementById('ptfNb').textContent=portfolio.length;
+
+  // Charts
+  var cols=portfolio.map(function(p,i){return CPAL[i%CPAL.length];});
+  mkChart('c-ptfAlloc','doughnut',
+    {labels:portfolio.map(function(p){return p.ticker;}),
+     datasets:[{data:portfolio.map(function(p){var l=allData.find(function(d){return d.ticker===p.ticker;})||{};return((l.cours||p.px)*p.qty);}),
+       backgroundColor:cols,borderWidth:2,borderColor:'#fff'}]},
+    {responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10,padding:8}},
+      tooltip:{callbacks:{label:function(i){return' '+i.label+': '+i.raw.toLocaleString('fr-FR',{maximumFractionDigits:0})+' MAD';}}}}});
+
+  var pnlData=portfolio.map(function(p){
+    var l=allData.find(function(d){return d.ticker===p.ticker;})||{};
+    var c=l.cours||p.px;return{ticker:p.ticker,pct:+((c-p.px)/p.px*100).toFixed(2)};
+  });
+  mkChart('c-ptfPnl','bar',
+    {labels:pnlData.map(function(d){return d.ticker;}),
+     datasets:[{data:pnlData.map(function(d){return d.pct;}),
+       backgroundColor:pnlData.map(function(d,i){return d.pct>=0?CPAL[i%CPAL.length]+'44':'#fecaca';}),
+       borderColor:pnlData.map(function(d,i){return d.pct>=0?CPAL[i%CPAL.length]:'#f87171';}),
+       borderWidth:2,borderRadius:4}]},
+    {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+     scales:{x:{...SAnogrid},y:{...SA,ticks:{...SA.ticks,callback:function(v){return(v>=0?'+':'')+v.toFixed(1)+'%';}}}}});
+}
+
+// ══════════════════════════════════════════════════════
+// FICHE VALEUR (modal)
+// ══════════════════════════════════════════════════════
+function openVm(ticker){
+  vmTicker=ticker;
+  var d=allData.find(function(x){return x.ticker===ticker;})||{};
+  document.getElementById('vmModal').classList.add('show');
+  document.getElementById('vmName').textContent=d.name||ticker;
+  document.getElementById('vmTick').textContent=ticker;
+  document.getElementById('vmSect').textContent=d.secteur||'';
+  document.getElementById('vmCours').textContent=d.cours?d.cours.toLocaleString('fr-FR',{maximumFractionDigits:2})+' MAD':'—';
+  var vc=d.variation;
+  var ve=document.getElementById('vmVar');
+  ve.textContent=vc!=null?(vc>=0?'+':'')+vc.toFixed(2)+'%':'—';
+  ve.className='vm-var '+(vc==null?'':vc>=0?'pos':'neg');
+  document.getElementById('vmPE').textContent=d.pe?d.pe.toFixed(1)+'x':'N/S';
+  document.getElementById('vmPB').textContent=d.pb?d.pb.toFixed(1)+'x':'—';
+  document.getElementById('vmDY').textContent=d.dy?d.dy.toFixed(1)+'%':'NC';
+  document.getElementById('vmMcap').textContent=d.mcap?d.mcap.toLocaleString('fr-FR',{maximumFractionDigits:0})+' MMAD':'—';
+  document.getElementById('vmCA').textContent=d.ca25?fmtMd(d.ca25):'—';
+  document.getElementById('vmREX').textContent=d.rex25?fmtMd(d.rex25):'—';
+  document.getElementById('vmRNPG').textContent=d.rnpg25?fmtMd(d.rnpg25):'—';
+  document.getElementById('vmDPA').textContent=d.dpa?d.dpa+' MAD':'NC';
+  document.getElementById('vmYTD').textContent=d.ytd?(d.ytd>=0?'+':'')+d.ytd.toFixed(2)+'%':'—';
+  document.getElementById('vmPoids').textContent=d.poids_masi?d.poids_masi.toFixed(3)+'%':'—';
+  document.querySelectorAll('#vmModal .pbtn').forEach(function(b){b.classList.remove('on');});
+  document.querySelector('#vmModal .pbtn').classList.add('on');
+  loadVmCours(ticker,365);
+}
+
+function closeVm(){
+  document.getElementById('vmModal').classList.remove('show');
+  ['c-vmCours','c-vmVol'].forEach(function(id){if(REG[id]){REG[id].destroy();delete REG[id];}});
+}
+
+function setVmP(days,el){
+  vmDays=days;
+  document.querySelectorAll('#vmModal .pbtn').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+  if(vmTicker)loadVmCours(vmTicker,days);
+}
+
+async function loadVmCours(ticker,days){
+  document.getElementById('vmChartTitle').innerHTML='Historique cours <span class="cb" id="vmChartSub">Chargement...</span>';
+  try{
+    var since=new Date();since.setDate(since.getDate()-days);
+    var r=await sbFetch('price_history?ticker=eq.'+ticker+'&trade_date=gte.'+since.toISOString().split('T')[0]+'&order=trade_date.asc&select=trade_date,cours,volume');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var data=await r.json();
+    if(!data.length){document.getElementById('vmChartSub').textContent='Aucun historique';return;}
+    document.getElementById('vmChartSub').textContent=data.length+' séances · '+data[0].trade_date+' → '+data[data.length-1].trade_date;
+
+    var labels=data.map(function(d){return d.trade_date;});
+    var cours=data.map(function(d){return d.cours;});
+    var vols=data.map(function(d){return d.volume?d.volume/1000000:0;});
+
+    var minC=Math.min.apply(null,cours.filter(Boolean)),maxC=Math.max.apply(null,cours.filter(Boolean));
+    var ctx=document.getElementById('c-vmCours').getContext('2d');
+    var grad=ctx.createLinearGradient(0,0,0,220);
+    grad.addColorStop(0,'rgba(37,99,235,.15)');grad.addColorStop(1,'rgba(37,99,235,0)');
+
+    mkChart('c-vmCours','line',{labels:labels,datasets:[{data:cours,borderColor:'#2563eb',borderWidth:2,backgroundColor:grad,fill:true,pointRadius:0,pointHoverRadius:4,tension:0.2}]},{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(i){return' '+i.raw.toLocaleString('fr-FR',{maximumFractionDigits:2})+' MAD';}},backgroundColor:'#fff',titleColor:'#111827',bodyColor:'#2563eb',borderColor:'#e8eaed',borderWidth:1,padding:10}},
+      scales:{x:{...SAnogrid,ticks:{...SAnogrid.ticks,maxTicksLimit:8,maxRotation:0}},y:{...SA,min:minC*0.98,max:maxC*1.02,ticks:{...SA.ticks,callback:function(v){return v.toLocaleString();}}}}});
+
+    mkChart('c-vmVol','bar',{labels:labels,datasets:[{data:vols,backgroundColor:'#2563eb22',borderColor:'#2563eb44',borderWidth:1,borderRadius:2}]},{
+      responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{display:false},y:{...SA,ticks:{...SA.ticks,callback:function(v){return v.toFixed(1)+'M';}}}}});
+
+  }catch(e){document.getElementById('vmChartSub').textContent='Erreur: '+e.message;}
+}
+
+// Close modals on backdrop
+document.getElementById('vmModal').addEventListener('click',function(e){if(e.target===e.currentTarget)closeVm();});
+document.getElementById('mdPtf').addEventListener('click',function(e){if(e.target===e.currentTarget)closeMd('mdPtf');});
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+loadAllData();
+</script>
+</body>
+</html>
